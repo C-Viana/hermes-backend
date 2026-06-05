@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.UUID;
 
+import com.cviana.hermes.constants.NotificationStatus;
+import com.cviana.hermes.constants.NotificationType;
 import com.fasterxml.uuid.Generators;
 
 import jakarta.persistence.Column;
