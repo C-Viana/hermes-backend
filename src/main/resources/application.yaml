@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: hermes
+  jackson:
+    propertyNamingStrategy: SNAKE_CASE
+  docker:
+    compose:
+      enabled: false
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+  datasource:
+    driverClassName: org.h2.Driver
+    url: jdbc:h2:mem:hermesdb
+    password: sa
+    username: Access123
+  h2:
+    console:
+      enabled: 'true'

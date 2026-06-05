@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-HermesApplication<hermes>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.cviana.hermes.HermesApplication",
+            "projectName": "hermes",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
