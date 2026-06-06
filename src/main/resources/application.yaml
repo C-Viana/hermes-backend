@@ -16,3 +16,24 @@ spring:
   h2:
     console:
       enabled: 'true'
+resilience4j.retry:
+  instances:
+    notificationRetry:
+      maxAttempts: 3
+      waitDuration: 3s
+      enableExponentialBackoff: true
+      exponentialBackoffMultiplier: 2
+      retryExceptions:
+          - java.lang.RuntimeException
+resilience4j.circuitbreaker:
+  instances:
+    notificationBreaker:
+      registerHealthIndicator: true
+      slidingWindowSize: 10
+      permittedNumberOfCallsInHalfOpenState: 3
+      slidingWindowType: TIME_BASED
+      minimumNumberOfCalls: 20
+      waitDurationInOpenState: 50s
+      failureRateThreshold: 50
+      eventConsumerBufferSize: 10
+

@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cviana.hermes.constants.NotificationType;
-
 import lombok.AllArgsConstructor;
 
 @RestController
