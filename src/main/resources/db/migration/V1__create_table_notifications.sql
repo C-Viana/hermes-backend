@@ -1,10 +1,9 @@
-create table if not exists notifications (
-  id uuid,
-  addressee varchar(80) array not null,
-  message clob not null,
-  type varchar(20) not null,
-  status varchar(15) not null,
-  date_schedule timestamp,
-  
-  primary key (id)
-)
+CREATE TABLE IF NOT EXISTS notifications (
+  id UUID DEFAULT uuidv7(),
+  addressee VARCHAR(80)[] NOT NULL,
+  message text NOT NULL,
+  type VARCHAR(20) NOT NULL,
+  status VARCHAR(15) NOT NULL,
+  date_schedule TIMESTAMP,
+  PRIMARY KEY (id)
+);

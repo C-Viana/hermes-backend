@@ -5,14 +5,17 @@ spring:
     propertyNamingStrategy: SNAKE_CASE
   docker:
     compose:
-      enabled: false
+      enabled: true
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+    hibernate:
+      ddl-auto: update
   datasource:
-    driverClassName: org.h2.Driver
-    url: jdbc:h2:mem:hermesdb
-    password: sa
-    username: Access123
+    driverClassName: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/hermesdb
+    password: hermesdbm
+    username: A_Sup3rS3cr3tP@$$word!
   h2:
     console:
       enabled: 'true'
@@ -36,4 +39,3 @@ resilience4j.circuitbreaker:
       waitDurationInOpenState: 50s
       failureRateThreshold: 50
       eventConsumerBufferSize: 10
-

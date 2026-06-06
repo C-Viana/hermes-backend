@@ -1,0 +1,33 @@
+services:
+  postgres:
+    image: 'postgres:18'
+    container_name: postgres
+    environment:
+      - 'POSTGRES_DB=hermesdb'
+      - 'POSTGRES_PASSWORD=hermesdbm'
+      - 'POSTGRES_USER=A_Sup3rS3cr3tPaSSword!'
+    ports:
+      - '5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql
+  rabbitmq:
+    image: 'rabbitmq:3-management'
+    container_name: 'rabbitmq'
+    environment:
+      - 'RABBITMQ_DEFAULT_USER=default'
+      - 'RABBITMQ_DEFAULT_PASS=A_Sup3rS3cr3tPaSSword'
+    ports:
+      - '15672:15672'
+      - '5672'
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+  redis:
+    image: 'redis:8'
+    container_name: 'redis'
+    ports:
+      - '6379'
+
+volumes:
+  postgres_data:
+    driver: local
+  rabbitmq_data:
