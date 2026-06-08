@@ -10,7 +10,6 @@ import com.cviana.hermes.exceptions.errors.HermesServerErrorException;
 import com.cviana.hermes.exceptions.errors.UnsupportedProviderException;
 import com.cviana.hermes.exceptions.messages.HermesExceptionMessages;
 
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class NotificationService {
 
-    // private NotificationRepository notificationRepository;
+    private NotificationRepository notificationRepository;
 
     private final List<NotificationProvider> providers;
     
@@ -37,5 +36,9 @@ public class NotificationService {
             .findFirst()
             .orElseThrow(() -> new UnsupportedProviderException("Provedor não suportado para o tipo: " + type));
         provider.send(target, message);
+    }
+
+    public Notification save(Notification notification) {
+        return notificationRepository.save(notification);
     }
 }

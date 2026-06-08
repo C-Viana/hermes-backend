@@ -2,13 +2,21 @@
     "configurations": [
         {
             "type": "java",
+            "name": "NotificationConsumer",
+            "request": "launch",
+            "mainClass": "com.cviana.hermes.events.NotificationConsumer",
+            "projectName": "hermes"
+        },
+        {
+            "type": "java",
             "name": "Spring Boot-HermesApplication<hermes>",
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "mainClass": "com.cviana.hermes.HermesApplication",
             "projectName": "hermes",
             "args": "",
-            "envFile": "${workspaceFolder}/.env"
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=65380 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=hermes"
         }
     ]
 }

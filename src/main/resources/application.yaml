@@ -14,11 +14,16 @@ spring:
   datasource:
     driverClassName: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/hermesdb
-    password: hermesdbm
-    username: A_Sup3rS3cr3tP@$$word!
+    username: hermesdbm
+    password: A_Sup3rS3cr3tPaSSword!
   h2:
     console:
       enabled: 'true'
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: default
+    password: A_Sup3rS3cr3tPaSSword
 resilience4j.retry:
   instances:
     notificationRetry:
