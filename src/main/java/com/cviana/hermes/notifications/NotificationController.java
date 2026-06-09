@@ -37,9 +37,10 @@ public class NotificationController {
         @RequestParam(required = false) @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss") @Nullable LocalDateTime dateSchedule
     ) throws JsonProcessingException {
         Notification entity = new Notification(null, addressee, message, type, NotificationStatus.PENDING, dateSchedule);
-        notificationService.save(entity);
+        Notification result = notificationService.create(entity);
         
-        rabbit.convertAndSend(RabbitMqConfig.EXCHANGE_NAME, RabbitMqConfig.ROUTING_KEY, new ObjectMapper().writeValueAsString(entity));
+        if(result != null)
+            rabbit.convertAndSend(RabbitMqConfig.EXCHANGE_NAME, RabbitMqConfig.ROUTING_KEY, new ObjectMapper().writeValueAsString(entity));
 
         return ResponseEntity.accepted().build();
     }

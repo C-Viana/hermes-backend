@@ -9,8 +9,8 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitMqConfig {
+    public static final String QUEUE_NAME = "notifications.v1.send";
     public static final String EXCHANGE_NAME = "notifications";
-    public static final String QUEUE_NAME = "notifications-queue";
     public static final String ROUTING_KEY = "pending";
 
     @Bean
@@ -19,7 +19,7 @@ public class RabbitMqConfig {
     }
 
     @Bean
-    public Queue queue() {
+    public Queue notificationQueue() {
         return new Queue(QUEUE_NAME, true);
     }
 

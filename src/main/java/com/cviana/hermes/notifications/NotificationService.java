@@ -1,14 +1,21 @@
 package com.cviana.hermes.notifications;
 
 import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import com.cviana.hermes.constants.NotificationStatus;
 import com.cviana.hermes.constants.NotificationType;
 import com.cviana.hermes.domain.provider.NotificationProvider;
 import com.cviana.hermes.exceptions.errors.HermesServerErrorException;
+import com.cviana.hermes.exceptions.errors.NotificationNotFoundException;
 import com.cviana.hermes.exceptions.errors.UnsupportedProviderException;
 import com.cviana.hermes.exceptions.messages.HermesExceptionMessages;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.AllArgsConstructor;
@@ -20,6 +27,8 @@ import lombok.extern.slf4j.Slf4j;
 public class NotificationService {
 
     private NotificationRepository notificationRepository;
+    private final RedisTemplate<String, String> redisTemplate;
+    private ObjectMapper mapper;
 
     private final List<NotificationProvider> providers;
     
@@ -38,7 +47,24 @@ public class NotificationService {
         provider.send(target, message);
     }
 
-    public Notification save(Notification notification) {
-        return notificationRepository.save(notification);
+    public Notification create(Notification notification) throws JsonProcessingException {
+        String notificationHash = String.valueOf(notification.hashCode());
+
+        if(redisTemplate.opsForValue().get(notificationHash) == null) {
+            Notification result = notificationRepository.save(notification);
+            if(result != null)
+                redisTemplate.opsForValue().setIfAbsent(String.valueOf(result.hashCode()), mapper.writeValueAsString(result), 30L, TimeUnit.MINUTES);
+            return result;
+        }
+        else {
+            log.info("[REDIS] Cache hit for notification {}", notificationHash);
+            return null;
+        }
+    }
+
+    public Notification updateStatus(UUID id, NotificationStatus status) {
+        Notification result = notificationRepository.findById(id).orElseThrow(() -> new NotificationNotFoundException());
+        result.setStatus(status);
+        return notificationRepository.save(result);
     }
 }

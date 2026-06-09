@@ -4,9 +4,11 @@ import java.io.IOException;
 
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import com.cviana.hermes.configurations.RabbitMqConfig;
+import com.cviana.hermes.constants.NotificationStatus;
 import com.cviana.hermes.notifications.Notification;
 import com.cviana.hermes.notifications.NotificationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,12 +22,13 @@ import lombok.extern.slf4j.Slf4j;
 public class NotificationConsumer {
 
     private NotificationService notificationService;
+    private ObjectMapper mapper;
 
     @RabbitListener(queues = RabbitMqConfig.QUEUE_NAME)
 	public void processMessage(Message message) throws IOException {
-        
-        Notification notification = new ObjectMapper().readValue(message.getBody(), Notification.class);
+        Notification notification = mapper.readValue(message.getBody(), Notification.class);
         notificationService.dispatch(notification.getType(), notification.getAddressee(), notification.getMessage());
+        notificationService.updateStatus(notification.getId(), NotificationStatus.FINISHED);
 	}
 
 }
