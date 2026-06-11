@@ -1,14 +1,14 @@
 package com.cviana.hermes.notifications;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import com.cviana.hermes.constants.NotificationStatus;
-import com.cviana.hermes.constants.NotificationType;
 import com.cviana.hermes.domain.provider.NotificationProvider;
 import com.cviana.hermes.exceptions.errors.HermesServerErrorException;
 import com.cviana.hermes.exceptions.errors.NotificationNotFoundException;
@@ -39,12 +39,17 @@ public class NotificationService {
 
     // @CircuitBreaker(name = "notificationBreaker", fallbackMethod = "fallbackSendNotification")
     @Retry(name = "notificationRetry", fallbackMethod = "fallbackSendNotification")
-    public void dispatch(NotificationType type, String[] target, String message){
-        NotificationProvider provider = providers.stream()
-            .filter(p -> p.supports(type))
-            .findFirst()
-            .orElseThrow(() -> new UnsupportedProviderException("Provedor não suportado para o tipo: " + type));
-        provider.send(target, message);
+    public void dispatch(Notification notification){
+        try {
+            NotificationProvider provider = providers.stream()
+                .filter(p -> p.supports(notification.getType()))
+                .findFirst()
+                .orElseThrow(() -> new UnsupportedProviderException("Provedor não suportado para o tipo: " + notification.getType()));
+            provider.send(notification.getAddressee(), notification.getMessage());
+        } catch (Exception e) {
+            redisTemplate.delete(String.valueOf(notification.hashCode()));
+            throw e;
+        }
     }
 
     public Notification create(Notification notification) throws JsonProcessingException {
@@ -53,7 +58,7 @@ public class NotificationService {
         if(redisTemplate.opsForValue().get(notificationHash) == null) {
             Notification result = notificationRepository.save(notification);
             if(result != null)
-                redisTemplate.opsForValue().setIfAbsent(String.valueOf(result.hashCode()), mapper.writeValueAsString(result), 30L, TimeUnit.MINUTES);
+                redisTemplate.opsForValue().setIfAbsent(String.valueOf(result.hashCode()), mapper.writeValueAsString(result), Duration.of(30L, ChronoUnit.MINUTES));
             return result;
         }
         else {

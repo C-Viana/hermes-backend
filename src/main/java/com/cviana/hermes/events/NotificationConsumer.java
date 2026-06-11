@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import com.cviana.hermes.configurations.RabbitMqConfig;
@@ -27,8 +26,8 @@ public class NotificationConsumer {
     @RabbitListener(queues = RabbitMqConfig.QUEUE_NAME)
 	public void processMessage(Message message) throws IOException {
         Notification notification = mapper.readValue(message.getBody(), Notification.class);
-        notificationService.dispatch(notification.getType(), notification.getAddressee(), notification.getMessage());
-        notificationService.updateStatus(notification.getId(), NotificationStatus.FINISHED);
+        notificationService.dispatch(notification);
+        notificationService.updateStatus(notification.getId(), NotificationStatus.COMPLETED);
 	}
 
 }

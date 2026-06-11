@@ -1,32 +1,60 @@
-// package com.cviana.hermes;
+package com.cviana.hermes;
 
-// import org.springframework.boot.test.context.TestConfiguration;
-// import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-// import org.springframework.context.annotation.Bean;
-// import org.testcontainers.containers.GenericContainer;
-// import org.testcontainers.postgresql.PostgreSQLContainer;
-// import org.testcontainers.rabbitmq.RabbitMQContainer;
-// import org.testcontainers.utility.DockerImageName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.resttestclient.TestRestTemplate;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.postgresql.PostgreSQLContainer;
+import org.testcontainers.rabbitmq.RabbitMQContainer;
 
-// @TestConfiguration(proxyBeanMethods = false)
-// class TestcontainersConfiguration {
+import com.cviana.hermes.notifications.NotificationRepository;
 
-// 	@Bean
-// 	@ServiceConnection
-// 	PostgreSQLContainer postgresContainer() {
-// 		return new PostgreSQLContainer(DockerImageName.parse("postgres:latest"));
-// 	}
+import static org.assertj.core.api.Assertions.assertThat;
 
-// 	@Bean
-// 	@ServiceConnection
-// 	RabbitMQContainer rabbitContainer() {
-// 		return new RabbitMQContainer(DockerImageName.parse("rabbitmq:latest"));
-// 	}
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@Testcontainers
+class TestcontainersConfiguration {
 
-// 	@Bean
-// 	@ServiceConnection(name = "redis")
-// 	GenericContainer<?> redisContainer() {
-// 		return new GenericContainer<>(DockerImageName.parse("redis:latest")).withExposedPorts(6379);
-// 	}
+    @Container
+    @ServiceConnection
+    static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:18");
 
-// }
+    @Container
+    @ServiceConnection
+    static RabbitMQContainer rabbitmq = new RabbitMQContainer("rabbitmq:3-management");
+
+    @SuppressWarnings({ "rawtypes", "resource" })
+    @Container
+    @ServiceConnection
+    static GenericContainer<?> redis = new GenericContainer("redis:8").withExposedPorts(6379);
+
+    @Autowired
+    private TestRestTemplate testRestTemplate;
+    @Autowired
+    private NotificationRepository repository;
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
+
+    @Test
+    void deveEnviarNotificationParaAFilaERetornarAccepted() {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("type", "EMAIL");
+        params.add("addressee", "joaosilva@gmail.com, mariaferreira@yahoo.com.br");
+        params.add("message", "Olá Testcontainers");
+
+        ResponseEntity<Void> response = testRestTemplate.postForEntity("/api/v1/notifications", params, Void.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
+        assertThat(repository.count()).isEqualTo(1);
+        assertThat(redisTemplate.getConnectionFactory().getConnection().serverCommands().dbSize()).isEqualTo(1L);
+    }
+}
