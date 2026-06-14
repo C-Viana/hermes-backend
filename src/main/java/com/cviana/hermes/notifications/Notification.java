@@ -6,14 +6,13 @@ import java.util.UUID;
 
 import com.cviana.hermes.constants.NotificationStatus;
 import com.cviana.hermes.constants.NotificationType;
+import com.cviana.hermes.notifications.dto.NotificationRequestDto;
 import com.fasterxml.uuid.Generators;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
@@ -33,7 +32,6 @@ public class Notification {
     @Getter
     @Setter
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(columnDefinition = "UUID")
     private UUID id;
 
@@ -67,11 +65,22 @@ public class Notification {
             this.id = Generators.timeBasedEpochGenerator().generate();
     }
 
+    public static Notification convert(NotificationRequestDto dto) {
+        return new Notification(
+            null, 
+            dto.sortedAddressee(), 
+            dto.message(), 
+            dto.type(), 
+            (dto.dateSchedule().compareTo(LocalDateTime.now()) <= 0) ? NotificationStatus.PENDING : NotificationStatus.SCHEDULED, 
+            dto.dateSchedule()
+        );
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        // result = prime * result + ((id == null) ? 0 : id.hashCode());
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
         result = prime * result + Arrays.hashCode(addressee);
         result = prime * result + ((message == null) ? 0 : message.hashCode());
         result = prime * result + ((type == null) ? 0 : type.hashCode());

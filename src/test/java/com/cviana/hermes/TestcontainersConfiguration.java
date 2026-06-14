@@ -8,15 +8,15 @@ import org.springframework.boot.testcontainers.service.connection.ServiceConnect
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.rabbitmq.RabbitMQContainer;
 
+import com.cviana.hermes.constants.NotificationType;
 import com.cviana.hermes.notifications.NotificationRepository;
+import com.cviana.hermes.notifications.dto.NotificationRequestDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -46,12 +46,13 @@ class TestcontainersConfiguration {
 
     @Test
     void deveEnviarNotificationParaAFilaERetornarAccepted() {
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("type", "EMAIL");
-        params.add("addressee", "joaosilva@gmail.com, mariaferreira@yahoo.com.br");
-        params.add("message", "Olá Testcontainers");
+        NotificationRequestDto payload = new NotificationRequestDto(
+            new String[]{"joaosilva@gmail.com", "mariaferreira@yahoo.com.br"}, 
+            "Olá, Testcontainers", 
+            NotificationType.EMAIL, 
+            null);
 
-        ResponseEntity<Void> response = testRestTemplate.postForEntity("/api/v1/notifications", params, Void.class);
+        ResponseEntity<Void> response = testRestTemplate.postForEntity("/api/v1/notifications", payload, Void.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
         assertThat(repository.count()).isEqualTo(1);

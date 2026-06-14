@@ -2,6 +2,20 @@
     "configurations": [
         {
             "type": "java",
+            "name": "NotificationController",
+            "request": "launch",
+            "mainClass": "com.cviana.hermes.notifications.NotificationController",
+            "projectName": "hermes"
+        },
+        {
+            "type": "java",
+            "name": "NotificationService",
+            "request": "launch",
+            "mainClass": "com.cviana.hermes.notifications.NotificationService",
+            "projectName": "hermes"
+        },
+        {
+            "type": "java",
             "name": "NotificationConsumer",
             "request": "launch",
             "mainClass": "com.cviana.hermes.events.NotificationConsumer",

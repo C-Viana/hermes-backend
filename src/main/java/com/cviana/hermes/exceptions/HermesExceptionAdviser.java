@@ -7,10 +7,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
 import com.cviana.hermes.exceptions.errors.HermesServerErrorException;
 import com.cviana.hermes.exceptions.errors.UnsupportedProviderException;
 import com.cviana.hermes.exceptions.response.ResponseErrorDefault;
+
+import jakarta.validation.ConstraintViolationException;
 
 @RestControllerAdvice
 public class HermesExceptionAdviser {
@@ -23,6 +24,16 @@ public class HermesExceptionAdviser {
             LocalDateTime.now(Clock.systemDefaultZone())
         );
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ResponseErrorDefault> ConstraintViolationExceptionExceptions(ConstraintViolationException exception) {
+        ResponseErrorDefault response = new ResponseErrorDefault(
+            HttpStatus.BAD_REQUEST.value(),
+            exception.getMessage(),
+            LocalDateTime.now(Clock.systemDefaultZone())
+        );
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(UnsupportedProviderException.class)

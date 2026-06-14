@@ -1,5 +1,5 @@
 package com.cviana.hermes.constants;
 
 public enum NotificationStatus {
-    PENDING, COMPLETED, STATUS3
+    PENDING, COMPLETED, FAILED, SCHEDULED
 }

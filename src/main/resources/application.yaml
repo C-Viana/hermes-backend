@@ -1,4 +1,6 @@
 spring:
+  config:
+    import: optional:file:.env[.properties]
   application:
     name: hermes
   jackson:
@@ -13,21 +15,18 @@ spring:
       ddl-auto: update
   datasource:
     driverClassName: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/hermesdb
-    username: hermesdbm
-    password: A_Sup3rS3cr3tPaSSword!
-  h2:
-    console:
-      enabled: 'true'
+    url: jdbc:postgresql://${DB_HOSTNAME}:${DB_PORT}/${DB_NAME}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   rabbitmq:
-    host: localhost
-    port: 5672
-    username: default
-    password: A_Sup3rS3cr3tPaSSword
+    host: ${BROKER_HOSTNAME}
+    port: ${BROKER_PORT}
+    username: ${BROKER_USERNAME}
+    password: ${BROKER_PASSWORD}
   data:
     redis:
-      host: localhost
-      port: 6379
+      host: ${REDIS_HOSTNAME}
+      port: ${REDIS_PORT}
 resilience4j.retry:
   instances:
     notificationRetry:
@@ -37,14 +36,3 @@ resilience4j.retry:
       exponentialBackoffMultiplier: 2
       retryExceptions:
           - java.lang.RuntimeException
-resilience4j.circuitbreaker:
-  instances:
-    notificationBreaker:
-      registerHealthIndicator: true
-      slidingWindowSize: 10
-      permittedNumberOfCallsInHalfOpenState: 3
-      slidingWindowType: TIME_BASED
-      minimumNumberOfCalls: 20
-      waitDurationInOpenState: 50s
-      failureRateThreshold: 50
-      eventConsumerBufferSize: 10

@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS notifications (
-  id UUID DEFAULT uuidv7(),
+  id UUID NOT NULL,
   addressee VARCHAR(80)[] NOT NULL,
   message text NOT NULL,
   type VARCHAR(20) NOT NULL,
